@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>Rhythm Maker</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/editor.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">RM</div>
+        <div>
+          <h1>Rhythm Maker</h1>
+          <p>譜面エディター / Ver. 3.5 audio & data</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="button button-quiet" id="undo-button" type="button" title="元に戻す">↶ <span>元に戻す</span></button>
+        <button class="button button-quiet" id="redo-button" type="button" title="やり直す">↷ <span>やり直す</span></button>
+        <button class="button button-primary" id="export-button" type="button">Scratch用TXT</button>
+        <button class="button button-secondary" id="import-button" type="button">TXTを読み込む</button>
+        <input id="import-file" type="file" accept=".txt,text/plain" hidden>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar panel">
+        <section class="panel-section">
+          <div class="section-heading">
+            <span class="section-icon">♪</span>
+            <h2>譜面設定</h2>
+          </div>
+          <label class="field-label" for="bpm-input">BPM</label>
+          <div class="bpm-control">
+            <input id="bpm-input" type="number" min="30" max="300" step="1" value="120">
+            <span>BPM</span>
+          </div>
+          <p class="help-text">曲のテンポを設定します（30〜300）。</p>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-heading">
+            <span class="section-icon">✎</span>
+            <h2>ノーツの種類</h2>
+          </div>
+          <div class="tool-list" role="group" aria-label="ノーツの種類">
+            <button class="tool-button is-active" data-tool="tap" type="button">
+              <span class="tool-symbol tap-symbol"></span><span><strong>タップノーツ</strong><small>キーを押した位置に配置</small></span>
+            </button>
+            <button class="tool-button" data-tool="hold" type="button">
+              <span class="tool-symbol hold-symbol"></span><span><strong>長押しノーツ</strong><small>1拍ぶんの長さ</small></span>
+            </button>
+            <button class="tool-button" data-tool="erase" type="button">
+              <span class="tool-symbol erase-symbol">⌫</span><span><strong>消しゴム</strong><small>同じキーでノーツを削除</small></span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-heading">
+            <span class="section-icon">▦</span>
+            <h2>グリッド</h2>
+          </div>
+          <label class="field-label" for="snap-select">カーソルの移動間隔</label>
+          <select id="snap-select" class="select-control">
+            <option value="4">4分音符</option>
+            <option value="2">8分音符</option>
+            <option value="1" selected>16分音符</option>
+          </select>
+          <p class="help-text">← → キーでカーソルを移動します。</p>
+        </section>
+
+        <section class="panel-section help-panel">
+          <div class="section-heading">
+            <span class="section-icon">?</span>
+            <h2>キーボード操作</h2>
+          </div>
+          <div class="shortcut-list">
+            <div><kbd>D</kbd><span>レーン1に配置</span></div>
+            <div><kbd>F</kbd><span>レーン2に配置</span></div>
+            <div><kbd>J</kbd><span>レーン3に配置</span></div>
+            <div><kbd>K</kbd><span>レーン4に配置</span></div>
+          </div>
+          <p class="help-text">← →：配置位置を移動<br>↑ ↓：小節を移動</p>
+          <p class="help-text">先に線で位置を決めてから、D・F・J・Kを押してね。</p>
+        </section>
+
+        <section class="panel-section data-panel">
+          <div class="section-heading">
+            <span class="section-icon">▤</span>
+            <h2>データ管理</h2>
+          </div>
+          <div class="data-actions">
+            <button class="data-button" id="save-project-button" type="button">このブラウザに保存</button>
+            <button class="data-button" id="load-project-button" type="button">保存した譜面を読み込む</button>
+            <button class="data-button" id="validate-button" type="button">譜面を検証する</button>
+          </div>
+          <p class="help-text">譜面と読み込んだ音源を、このブラウザ内に保存します。</p>
+        </section>
+      </aside>
+
+      <section class="editor-area" aria-label="譜面エディター">
+        <div class="editor-heading">
+          <div>
+            <p class="eyebrow">CHART EDITOR</p>
+            <h2 id="measure-title">小節 1</h2>
+          </div>
+          <div class="measure-navigation" aria-label="小節移動">
+            <button class="nav-button" id="measure-prev" type="button" title="前の小節（↑）">↑ 前の小節</button>
+            <button class="nav-button" id="measure-next" type="button" title="次の小節（↓）">↓ 次の小節</button>
+          </div>
+          <div class="editor-stats">
+            <div class="stat"><span>この小節のノーツ</span><strong id="note-count">0 / 36</strong></div>
+            <div class="stat"><span>1拍の長さ</span><strong id="beat-length">500 ms</strong></div>
+          </div>
+        </div>
+
+        <section class="audio-panel panel" aria-label="音源プレイヤー">
+          <div class="audio-panel-top">
+            <div class="audio-title">
+              <p class="eyebrow">AUDIO STUDIO</p>
+              <h3>音源・波形エディター</h3>
+              <p id="audio-file-name" class="audio-file-name">音源が読み込まれていません。MP3 / WAVに対応。</p>
+            </div>
+            <div class="audio-controls">
+              <input id="audio-file" type="file" accept=".mp3,.wav,.wave,audio/mpeg,audio/wav,audio/x-wav" hidden>
+              <button class="button button-primary" id="audio-load-button" type="button">音源を読み込む</button>
+              <button class="button button-quiet" id="audio-play-button" type="button" disabled>再生</button>
+              <button class="button button-quiet" id="audio-stop-button" type="button" disabled>停止</button>
+            </div>
+          </div>
+          <canvas id="audio-waveform" class="audio-waveform" aria-label="クリックして再生位置を移動"></canvas>
+          <div class="audio-panel-bottom">
+            <span id="audio-time-display" class="audio-time">00:00.0 / 00:00.0</span>
+            <span id="playback-readout" class="playback-readout">再生位置：1小節 1/16</span>
+            <label class="audio-setting" for="audio-offset-input">譜面開始オフセット
+              <input id="audio-offset-input" type="number" min="-5000" max="5000" step="1" value="0"> ms
+            </label>
+            <label class="audio-setting volume-setting" for="audio-volume">音量
+              <input id="audio-volume" type="range" min="0" max="1" step="0.01" value="0.8">
+            </label>
+          </div>
+          <p class="audio-help">波形をクリックするとその位置から再生できます。譜面はBPMと開始オフセットに合わせて小節・位置を追従します。</p>
+        </section>
+
+        <section class="editor-screen panel" aria-label="ノーツ配置エディター">
+          <div class="editor-screen-heading">
+            <div>
+              <p class="eyebrow">NOTE PLACEMENT</p>
+              <h3>配置エディター</h3>
+              <p class="editor-instruction">各行の左にレーン名と対応キーを表示します。横矢印で位置を動かし、D・F・J・Kで配置します。</p>
+            </div>
+            <div class="cursor-readout">
+              <span>現在の配置位置</span>
+              <strong id="cursor-position">1拍目・1/16</strong>
+            </div>
+          </div>
+
+          <div class="beat-ruler" id="beat-ruler" aria-hidden="true"></div>
+          <div id="measure-grid" class="measure-grid" aria-label="4レーンの譜面編集エリア" tabindex="0">
+            <div class="playhead-overlay" aria-hidden="true"><div class="playhead-line"></div><div class="playback-line"></div></div>
+          </div>
+          <div class="grid-footer">
+            <span>← 曲の開始</span>
+            <span>4拍目 →</span>
+          </div>
+        </section>
+
+        <section class="editor-dock panel" aria-label="キーボード入力ガイドと状態">
+          <div class="dock-key-guide">
+            <span class="dock-label">LANE KEYS</span>
+            <div class="dock-key"><kbd>D</kbd><span>レーン1</span></div>
+            <div class="dock-key"><kbd>F</kbd><span>レーン2</span></div>
+            <div class="dock-key"><kbd>J</kbd><span>レーン3</span></div>
+            <div class="dock-key"><kbd>K</kbd><span>レーン4</span></div>
+          </div>
+          <div class="dock-position">
+            <span class="dock-label">MOVE</span>
+            <span><kbd>←</kbd> <kbd>→</kbd> 位置</span>
+            <span><kbd>↑</kbd> <kbd>↓</kbd> 小節</span>
+          </div>
+          <div class="status-bar" aria-live="polite">
+            <span class="status-dot"></span>
+            <p id="status-message">準備完了。カーソル位置を選んでキーを押してください。</p>
+            <button id="clear-button" class="text-button" type="button">この小節をクリア</button>
+          </div>
+        </section>
+
+        <div class="notice">
+          <strong>開発メモ</strong>
+          <span>音源再生・波形表示・TXT保存・データ検証を実装中です。Scratch用TXTはtime_ms形式で書き出します。</span>
+        </div>
+      </section>
+    </main>
+    <footer class="app-footer">Rhythm Maker · Your chart, your rules.</footer>
+  </div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
