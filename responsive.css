@@ -1,0 +1,49 @@
+@media (max-width: 1120px) {
+  .workspace { grid-template-columns: 230px minmax(0, 1fr); gap: 16px; }
+  .editor-dock { grid-template-columns: 1fr; gap: 10px; }
+  .status-bar { min-height: 25px; }
+}
+@media (max-width: 900px) {
+  .app-shell { padding: 18px; }
+  .topbar { align-items: flex-start; }
+  .topbar-actions { justify-content: flex-end; }
+  .workspace { grid-template-columns: 210px minmax(0, 1fr); gap: 13px; }
+  .editor-area { height: auto; min-height: 0; }
+  .editor-heading { align-items: flex-start; }
+  .editor-stats { gap: 12px; }
+  .editor-screen { min-height: 480px; padding: 15px 12px; }
+  .lane-row { grid-template-columns: 92px minmax(0, 1fr); }
+  .beat-ruler, .grid-footer { margin-left: 92px; }
+  .playhead-overlay { left: 92px; }
+  .lane-name { gap: 5px; font-size: 9px; padding-left: 6px; padding-right: 7px; }
+  .lane-name-label { font-size: 9px; }
+  .lane-name kbd { width: 22px; height: 22px; }
+  .dock-key-guide { flex-wrap: wrap; }
+}
+@media (max-width: 700px) {
+  .app-shell { padding: 14px 10px; }
+  .topbar { display: grid; }
+  .topbar-actions { justify-content: flex-start; }
+  .topbar-actions .button { flex: 1; }
+  .workspace { grid-template-columns: 1fr; }
+  .sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel-section { padding: 14px; }
+  .editor-heading { display: grid; grid-template-columns: 1fr auto; }
+  .editor-stats { grid-column: 1 / -1; }
+  .measure-navigation { justify-content: end; }
+  .editor-screen { min-height: 460px; overflow-x: auto; }
+  .editor-screen-heading, .beat-ruler, .measure-grid, .grid-footer { min-width: 600px; }
+  .beat-ruler, .grid-footer { margin-left: 92px; }
+  .lane-row { grid-template-columns: 92px minmax(0, 1fr); }
+  .playhead-overlay { left: 92px; }
+  .editor-dock { grid-template-columns: 1fr; }
+  .dock-key-guide { gap: 7px; }
+  .dock-position { flex-wrap: wrap; }
+}
+@media (max-width: 430px) {
+  .sidebar { grid-template-columns: 1fr; }
+  .brand h1 { font-size: 18px; }
+  .editor-heading { grid-template-columns: 1fr; }
+  .measure-navigation { justify-content: flex-start; }
+  .cursor-readout { min-width: 125px; }
+}
